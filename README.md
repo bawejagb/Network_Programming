@@ -11,4 +11,5 @@ This is the repo of Network Programming Algorithms implemented in **C**.
 
 ### Content
 ---
-* **Chat Program**
+* **TCP Chat Program**
+* **UDP Chat Program**

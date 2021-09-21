@@ -16,6 +16,25 @@ void error(const char *msg){
 	exit(1);
 }
 
+void program(int status, char buffer[255], int newsockfd){
+	int n;
+	while(status == 0){
+		bzero(buffer,255);
+		n = read(newsockfd, buffer, 255);
+		if(n < 0)
+			error("Error on reading!\n");
+		printf("Client: %s>> ", buffer);
+		bzero(buffer, 255);
+		fgets(buffer, 255, stdin);
+		n = write(newsockfd, buffer, strlen(buffer));
+		if(n < 0)
+			error("Error on writing");
+		int t = strncmp("Bye", buffer, 3);
+		if(t == 0)
+			break;
+	}
+}
+
 int main(int argc, char * argv[]){
 	if(argc < 2){
 		fprintf(stderr, "Port no. not provided. Program terminated!\n");
@@ -49,21 +68,7 @@ int main(int argc, char * argv[]){
 	if(n < 0)
 		error("Error on writing!\n");
 	int status = strncmp("Connection Established!", buffer, 23);
-	while(status == 0){
-		bzero(buffer,255);
-		n = read(newsockfd, buffer, 255);
-		if(n < 0)
-			error("Error on reading!\n");
-		printf("Client: %s>> ", buffer);
-		bzero(buffer, 255);
-		fgets(buffer, 255, stdin);
-		n = write(newsockfd, buffer, strlen(buffer));
-		if(n < 0)
-			error("Error on writing");
-		int t = strncmp("Bye", buffer, 3);
-		if(t == 0)
-			break;
-	}
+	program(status, buffer, newsockfd);
 	close(newsockfd);
 	close(sockfd);
 	return 0;

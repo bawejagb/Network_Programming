@@ -16,6 +16,24 @@ void error(const char *msg){
 	perror(msg);
 	exit(1);
 }
+void program(int status, char buffer[255], int sockfd){
+	int n;
+	while(status == 0){
+		bzero(buffer, 255);
+		fgets(buffer, 255, stdin);
+		n = write(sockfd, buffer, strlen(buffer));
+		if(n < 0)
+			error("Error on writing!\n");
+		bzero(buffer, 255);
+		n = read(sockfd, buffer, 255);
+		if( n < 0)
+			error("Error on reading!\n");
+		printf("Server : %s>> ", buffer);
+		int t = strncmp("Bye", buffer, 3);
+		if(t == 0)
+			break;
+	}
+}
 
 int main(int argc, char * argv[]){
 	int sockfd, portno, n;
@@ -48,21 +66,7 @@ int main(int argc, char * argv[]){
 		error("Error on reading!\n");
 	printf("%s\n>> ", buffer);
 	int status = strncmp("Connection Established!", buffer, 23);
-	while(status == 0){
-		bzero(buffer, 255);
-		fgets(buffer, 255, stdin);
-		n = write(sockfd, buffer, strlen(buffer));
-		if(n < 0)
-			error("Error on writing!\n");
-		bzero(buffer, 255);
-		n = read(sockfd, buffer, 255);
-		if( n < 0)
-			error("Error on reading!\n");
-		printf("Server : %s>> ", buffer);
-		int t = strncmp("Bye", buffer, 3);
-		if(t == 0)
-			break;
-	}
+	program(status, buffer, sockfd);
 	close(sockfd);
 	return 0;
 }
